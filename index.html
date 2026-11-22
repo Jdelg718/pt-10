@@ -31,11 +31,14 @@
   .ghost{background:none;border:2px solid var(--dim);color:var(--txt);padding:12px;border-radius:12px;font-weight:700;flex:1;font-size:16px}
   #run{display:none;text-align:center}
   #phase{font-size:16px;letter-spacing:4px;font-weight:800;margin-top:6px}
-  #ex{font-size:34px;font-weight:900;margin:14px 0 4px;line-height:1.1}
+  #ex{font-size:30px;font-weight:900;margin:8px 0 2px;line-height:1.1}
   #cue{color:var(--sand);font-size:15px;min-height:42px;padding:0 6px}
-  .ring{position:relative;width:230px;height:230px;margin:18px auto 8px}
+  .ring{position:relative;width:170px;height:170px;margin:6px auto 4px}
   .ring svg{transform:rotate(-90deg)}
-  #sec{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:78px;font-weight:900;font-variant-numeric:tabular-nums}
+  #sec{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:60px;font-weight:900;font-variant-numeric:tabular-nums}
+  #fig{display:block;margin:4px auto 0;background:#26331f;border-radius:16px}
+  ol li svg{width:34px;height:34px;vertical-align:middle;margin-right:6px;background:#26331f;border-radius:8px}
+  ol{list-style:none;padding-left:0}
   #next{color:var(--dim);font-size:15px;margin-top:6px}
   .bar{height:8px;background:#3a4a30;border-radius:6px;margin-top:16px;overflow:hidden}
   .bar i{display:block;height:100%;width:0;background:var(--sand);transition:width .3s}
@@ -77,11 +80,12 @@
 <section id="run">
   <div id="phase" class="stencil">WORK</div>
   <div id="ex">—</div>
+  <svg id="fig" viewBox="0 0 200 200" width="220" height="200" aria-hidden="true"></svg>
   <div id="cue"></div>
   <div class="ring">
-    <svg width="230" height="230"><circle cx="115" cy="115" r="100" stroke="#3a4a30" stroke-width="14" fill="none"/>
-      <circle id="arc" cx="115" cy="115" r="100" stroke="#9bd14b" stroke-width="14" fill="none" stroke-linecap="round"
-        stroke-dasharray="628.3" stroke-dashoffset="0"/></svg>
+    <svg width="170" height="170"><circle cx="85" cy="85" r="74" stroke="#3a4a30" stroke-width="12" fill="none"/>
+      <circle id="arc" cx="85" cy="85" r="74" stroke="#9bd14b" stroke-width="12" fill="none" stroke-linecap="round"
+        stroke-dasharray="465" stroke-dashoffset="0"/></svg>
     <div id="sec">0</div>
   </div>
   <div id="next"></div>
@@ -100,6 +104,7 @@
   <button class="big stencil" id="home2">Dismissed</button>
 </section>
 
+<script src="figures.js"></script>
 <script>
 // ---- Exercise library (bodyweight, no equipment) ----
 const EX = {
@@ -120,8 +125,8 @@ const EX = {
   bear:    {n:"Bear Crawl in Place", c:"Knees an inch off the deck, step hands and feet, back flat."},
   hold:    {n:"Wall Sit / Squat Hold", c:"Thighs parallel, hold. Breathe."},
 };
-const WARM = [["Arm Circles","Big circles forward, then back."],["Jog in Place","Easy pace, loosen up."],["Hip Openers","Knee up and out, alternate legs."]];
-const COOL = [["Hamstring Stretch","Legs straight, reach for toes, breathe."],["Chest & Shoulder Stretch","Hands behind back, open the chest."],["Deep Breathing","In through the nose, out slow. You earned it."]];
+const WARM = [["Arm Circles","Big circles forward, then back.","circles"],["Jog in Place","Easy pace, loosen up.","jog"],["Hip Openers","Knee up and out, alternate legs.","hipopen"]];
+const COOL = [["Hamstring Stretch","Legs straight, reach for toes, breathe.","hamstring"],["Chest & Shoulder Stretch","Hands behind back, open the chest.","chest"],["Deep Breathing","In through the nose, out slow. You earned it.","breathe"]];
 const DAYS = {
   A: ["jacks","pushup","squat","flutter","eight","lunge","plank","climb"],
   B: ["knees","diamond","lunge","situp","burpee","bridge","bear","hold"],
@@ -147,12 +152,12 @@ function streak(){
 
 function buildSteps(){
   const L = LEVELS[store.level], steps = [];
-  WARM.forEach(([n,c]) => steps.push({ph:"WARM-UP", n, c, s:WARM_S}));
+  WARM.forEach(([n,c,k]) => steps.push({ph:"WARM-UP", n, c, k, s:WARM_S}));
   DAYS[dayKey()].forEach((k,i) => {
-    steps.push({ph:"WORK", n:EX[k].n, c:EX[k].c, s:L.w});
-    steps.push({ph:"REST", n:"Recover", c:"Shake it out. Next: " + (DAYS[dayKey()][i+1] ? EX[DAYS[dayKey()][i+1]].n : "cool-down"), s:L.r});
+    steps.push({ph:"WORK", n:EX[k].n, c:EX[k].c, k, s:L.w});
+    steps.push({ph:"REST", n:"Recover", k:"rest", c:"Shake it out. Next: " + (DAYS[dayKey()][i+1] ? EX[DAYS[dayKey()][i+1]].n : "cool-down"), s:L.r});
   });
-  COOL.forEach(([n,c]) => steps.push({ph:"COOL-DOWN", n, c, s:COOL_S}));
+  COOL.forEach(([n,c,k]) => steps.push({ph:"COOL-DOWN", n, c, k, s:COOL_S}));
   return steps;
 }
 
@@ -164,9 +169,11 @@ function renderHome(){
     `<button data-l="${k}" class="${store.level===k?"on":""}">${v.t}<small>${v.w}s on / ${v.r}s off</small></button>`).join("");
   $("levels").querySelectorAll("button").forEach(b => b.onclick = () => { store.level = b.dataset.l; save(); renderHome(); });
   $("plantitle").textContent = `Today's mission · Day ${dayKey()}`;
-  $("plan").innerHTML = `<li>Warm-up <span>· 1:00</span></li>` +
-    DAYS[dayKey()].map(k => `<li>${EX[k].n} <span>· ${LEVELS[store.level].w}s</span></li>`).join("") +
-    `<li>Cool-down <span>· 1:00</span></li>`;
+  const thumb = k => `<svg viewBox="0 0 200 200" data-k="${k}"></svg>`;
+  $("plan").innerHTML = `<li>${thumb("circles")}Warm-up <span>· 1:00</span></li>` +
+    DAYS[dayKey()].map(k => `<li>${thumb(k)}${EX[k].n} <span>· ${LEVELS[store.level].w}s</span></li>`).join("") +
+    `<li>${thumb("hamstring")}Cool-down <span>· 1:00</span></li>`;
+  $("plan").querySelectorAll("svg").forEach(s => PTFig.still(s, s.dataset.k, 0.5));
 }
 
 // ---- Voice + beeps ----
@@ -183,6 +190,7 @@ function say(t){
 }
 
 // ---- Runner ----
+let curKey = "rest", curColor = "#d8c9a3", figOn = false;
 let steps = [], idx = 0, left = 0, timer = null, paused = false, wake = null, totalS = 0, elapsed = 0;
 async function lock(){ try { wake = await navigator.wakeLock?.request("screen"); } catch(e){} }
 
@@ -190,14 +198,14 @@ function show(){
   const st = steps[idx];
   $("phase").textContent = st.ph; $("ex").textContent = st.n; $("cue").textContent = st.c;
   const col = st.ph === "WORK" ? "var(--go)" : st.ph === "REST" ? "var(--rest)" : "var(--sand)";
-  $("phase").style.color = col; $("arc").style.stroke = col;
+  $("phase").style.color = col; $("arc").style.stroke = col; curKey = st.k; curColor = st.ph === "REST" ? "#e7b54a" : "#d8c9a3";
   const nx = steps.slice(idx+1).find(s => s.ph !== "REST");
   $("next").textContent = nx ? "Up next: " + nx.n : "Last one. Finish strong.";
 }
 function tick(){
   if (paused) return;
   $("sec").textContent = left;
-  $("arc").style.strokeDashoffset = 628.3 * (1 - left / steps[idx].s);
+  $("arc").style.strokeDashoffset = 465 * (1 - left / steps[idx].s);
   $("prog").style.width = (100 * elapsed / totalS) + "%";
   if (left <= 3 && left > 0) beep(660, 0.08);
   if (left === 0) { next(); return; }
@@ -213,7 +221,7 @@ function next(){
 function start(){
   steps = buildSteps(); idx = 0; left = steps[0].s; elapsed = 0; totalS = steps.reduce((a,s) => a + s.s, 0); paused = false;
   $("home").style.display = "none"; $("run").style.display = "block"; $("done").style.display = "none";
-  show(); lock(); beep(1000, 0.25); say("PT formation. Ten minutes. Warm up. " + steps[0].n);
+  show(); if (!figOn) { figOn = true; PTFig.animate($("fig"), () => curKey, () => curColor); } lock(); beep(1000, 0.25); say("PT formation. Ten minutes. Warm up. " + steps[0].n);
   clearInterval(timer); timer = setInterval(tick, 1000); tick();
 }
 function finish(){
@@ -234,7 +242,7 @@ $("home2").onclick = () => { $("done").style.display = "none"; $("home").style.d
 document.addEventListener("visibilitychange", () => { if (!document.hidden && timer && !paused) lock(); });
 renderHome();
 // preview hook for screenshots only
-if (location.hash === "#preview") { $("voice").checked = false; start(); for (let i = 0; i < 5; i++) next(); left = 27; paused = true; $("sec").textContent = left; $("arc").style.strokeDashoffset = 628.3*(1-27/40); $("prog").style.width = "22%"; }
+if (location.hash === "#preview") { $("voice").checked = false; start(); for (let i = 0; i < 5; i++) next(); left = 27; paused = true; $("sec").textContent = left; $("arc").style.strokeDashoffset = 465*(1-27/40); $("prog").style.width = "22%"; }
 </script>
 </body>
 </html>
