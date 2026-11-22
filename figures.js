@@ -38,8 +38,51 @@
   const hamstring = P({h:[132,112],s:[122,96],p:[90,110],le:[124,130],lh:[124,160],re:[127,130],rh:[127,160],lk:[94,145],lf:[96,180],rk:[96,145],rf:[98,180]});
   const chestStretch = P({...standSide, h:[102,38], le:[90,82],lh:[78,104],re:[92,82],rh:[80,104]});
   const breatheUp = P({...standFront, le:[84,44],lh:[80,20],re:[116,44],rh:[120,20]});
+  // Aging-focused library poses. Props are implied; the app's raster frames add detail where available.
+  const chairSit = P({h:[118,64],s:[110,82],p:[92,132],le:[122,102],lh:[137,126],re:[124,103],rh:[139,127],lk:[124,132],lf:[128,178],rk:[126,134],rf:[132,178]});
+  const hingeDown = P({h:[145,84],s:[130,92],p:[90,116],le:[128,116],lh:[144,138],re:[131,117],rh:[147,139],lk:[92,146],lf:[90,180],rk:[104,146],rf:[106,180]});
+  const rowSit = P({h:[72,82],s:[78,100],p:[94,150],le:[104,114],lh:[128,128],re:[106,116],rh:[130,130],lk:[122,144],lf:[158,174],rk:[124,146],rf:[160,176]});
+  const splitDown = P({h:[100,50],s:[100,70],p:[100,120],le:[86,92],lh:[78,116],re:[114,92],rh:[122,116],lk:[126,138],lf:[130,180],rk:[80,154],rf:[58,178]});
+  const inclineTop = P({h:[58,74],s:[70,86],p:[106,116],le:[92,108],lh:[112,136],re:[95,106],rh:[116,134],lk:[132,140],lf:[154,178],rk:[136,142],rf:[160,178]});
+  const inclineLow = P({...inclineTop,h:[76,96],s:[86,104],le:[102,116],lh:[112,136],re:[106,114],rh:[116,134]});
+  const stepUp = P({...standSide,h:[104,44],s:[104,64],p:[104,112],lk:[124,132],lf:[124,158],rk:[90,144],rf:[82,180]});
+  const calfUp = P({...standFront,h:[100,30],s:[100,50],p:[100,102],lk:[94,137],lf:[92,172],rk:[106,137],rf:[108,172]});
+  const balanceReach = P({...standFront,h:[104,42],s:[104,62],p:[104,112],le:[76,74],lh:[52,86],re:[126,74],rh:[148,86],lk:[88,128],lf:[70,150],rk:[108,146],rf:[110,180]});
+  const halfKneel = P({h:[104,50],s:[104,70],p:[102,120],le:[92,94],lh:[88,120],re:[116,94],rh:[120,120],lk:[128,138],lf:[130,180],rk:[82,160],rf:[60,178]});
+  const wallSlideLow = P({...standFront,le:[76,72],lh:[70,52],re:[124,72],rh:[130,52]});
+  const wallSlideHigh = P({...standFront,le:[86,42],lh:[82,18],re:[114,42],rh:[118,18]});
+  const birdDogStart = P({h:[154,120],s:[140,130],p:[98,132],le:[142,150],lh:[144,176],re:[126,150],rh:[126,176],lk:[92,154],lf:[82,178],rk:[108,154],rf:[116,178]});
+  const birdDogReach = P({...birdDogStart,le:[118,128],lh:[84,112],rk:[84,136],rf:[46,124]});
+  const sidePlankLow = P({h:[150,112],s:[136,124],p:[98,150],le:[132,150],lh:[144,176],re:[126,106],rh:[116,82],lk:[72,160],lf:[42,176],rk:[74,162],rf:[44,178]});
+  const sidePlankHigh = P({...sidePlankLow,p:[98,130],s:[136,112],h:[150,100]});
+  const legOut = P({...standFront,lk:[72,138],lf:[48,160]});
+  const deadBugStart = P({h:[44,164],s:[60,168],p:[102,170],le:[78,138],lh:[82,112],re:[82,138],rh:[86,112],lk:[124,142],lf:[122,116],rk:[136,144],rf:[136,116]});
+  const deadBugTap = P({...deadBugStart,le:[58,142],lh:[34,130],rk:[144,156],rf:[166,178]});
+  const bearHover = P({h:[154,120],s:[140,130],p:[96,126],le:[142,150],lh:[144,176],re:[128,150],rh:[128,176],lk:[102,154],lf:[80,176],rk:[88,152],rf:[66,174]});
 
   const FIG = {
+    chairsquat:{f:[standSide,chairSit],d:2.2},
+    inclinepush:{f:[inclineTop,inclineLow],d:1.8},
+    hinge:{f:[standSide,hingeDown],d:2.2},
+    towelrow:{f:[rowSit,{...rowSit,le:[92,112],lh:[106,122],re:[94,114],rh:[108,124]}],d:2.0},
+    splitsquat:{f:[standFront,splitDown,standFront,sw(splitDown)],d:3.2},
+    suitcase:{f:[standFront,highKnee,standFront,swA(sw(highKnee))],d:2.0},
+    powermarch:{f:[highKnee,swA(sw(highKnee))],d:0.9},
+    fastrise:{f:[chairSit,standSide],d:1.6},
+    stepup:{f:[standSide,stepUp,standSide,{...stepUp,lk:stepUp.rk,lf:stepUp.rf,rk:stepUp.lk,rf:stepUp.lf}],d:2.6},
+    stepjack:{f:[standFront,jackOut],d:1.3},
+    lateral:{f:[standFront,{...standFront,p:[80,118],lk:[70,148],lf:[54,180],rk:[92,146],rf:[100,180]},standFront,{...standFront,p:[120,118],lk:[108,146],lf:[100,180],rk:[130,148],rf:[146,180]}],d:2.4},
+    calfpower:{f:[standFront,calfUp],d:0.8},
+    balance:{f:[standFront,balanceReach,standFront,swA(sw(balanceReach))],d:3.0},
+    tactical:{f:[halfKneel,standFront,sw(halfKneel),standFront],d:4.0},
+    reverselunge:{f:[standFront,splitDown,standFront,sw(splitDown)],d:3.2},
+    wallslide:{f:[wallSlideLow,wallSlideHigh],d:2.5},
+    calfraise:{f:[standFront,calfUp],d:1.8},
+    birddog:{f:[birdDogStart,birdDogReach,birdDogStart,swA(sw(birdDogReach))],d:4.0},
+    sideplank:{f:[sidePlankLow,sidePlankHigh],d:3.0},
+    legraise:{f:[standFront,legOut,standFront,sw(legOut)],d:2.8},
+    deadbug:{f:[deadBugStart,deadBugTap,deadBugStart,swA(sw(deadBugTap))],d:4.0},
+    bearhover:{f:[birdDogStart,bearHover],d:2.5},
     jacks:   {f:[standFront, jackOut], d:0.9},
     pushup:  {f:[plankTop, plankLow], d:1.6},
     diamond: {f:[plankTop, {...plankLow, le:[132,158], re:[134,160]}], d:1.6},
