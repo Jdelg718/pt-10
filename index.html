@@ -146,7 +146,14 @@ const DAYS = {
 // 10:00 total = warm 60s + 8 x 60s + cool 60s
 const LEVELS = {recruit:{t:"Recruit",w:30,r:30}, soldier:{t:"Soldier",w:40,r:20}, ranger:{t:"Ranger",w:50,r:10}};
 const WARM_S = 20, COOL_S = 20;
-const IMAGE_IDS = new Set(["chairsquat","inclinepush","deadbug","birddog","balance"]);
+// Every station, warm-up and cool-down move ships illustrated start/end frames; SVG stays as load-failure fallback.
+const IMAGE_IDS = new Set([...Object.keys(EX), ...WARM.map(w => w[2]), ...COOL.map(c => c[2])]);
+const preloaded = new Set();
+function preloadFrames(key){
+  if (!IMAGE_IDS.has(key) || preloaded.has(key)) return;
+  preloaded.add(key);
+  ["start","end"].forEach(p => { const im = new Image(); im.src = `img/${key}.${p}.webp`; });
+}
 
 // ---- State ----
 const $ = id => document.getElementById(id);
@@ -182,11 +189,15 @@ function renderHome(){
   $("levels").querySelectorAll("button").forEach(b => b.onclick = () => { store.level = b.dataset.l; save(); renderHome(); });
   $("plantitle").textContent = `Today's mission · Day ${dayKey()}`;
   const thumb = k => IMAGE_IDS.has(k)
-    ? `<img src="img/${k}.start.webp" alt="">`
+    ? `<img src="img/${k}.start.webp" alt="" data-k="${k}">`
     : `<svg viewBox="0 0 200 200" data-k="${k}"></svg>`;
   $("plan").innerHTML = `<li>${thumb("circles")}Warm-up <span>· 1:00</span></li>` +
     DAYS[dayKey()].map(k => `<li>${thumb(k)}${EX[k].n} <span>· ${LEVELS[store.level].w}s</span></li>`).join("") +
     `<li>${thumb("hamstring")}Cool-down <span>· 1:00</span></li>`;
+  $("plan").querySelectorAll("img").forEach(im => im.onerror = () => {
+    const s = document.createElementNS("http://www.w3.org/2000/svg","svg");
+    s.setAttribute("viewBox","0 0 200 200"); im.replaceWith(s); PTFig.still(s, im.dataset.k, 0.5);
+  });
   $("plan").querySelectorAll("svg").forEach(s => PTFig.still(s, s.dataset.k, 0.5));
 }
 
@@ -235,6 +246,7 @@ function show(){
   $("phase").style.color = col; $("arc").style.stroke = col; curKey = st.k; curColor = st.ph === "REST" ? "#e7b54a" : "#d8c9a3";
   useExerciseImages(curKey);
   const nx = steps.slice(idx+1).find(s => s.ph !== "REST");
+  if (nx) preloadFrames(nx.k);
   $("next").textContent = nx ? "Up next: " + nx.n : "Last one. Finish strong.";
 }
 function tick(){
