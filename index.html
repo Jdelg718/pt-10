@@ -36,8 +36,11 @@
   .ring{position:relative;width:170px;height:170px;margin:6px auto 4px}
   .ring svg{transform:rotate(-90deg)}
   #sec{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:60px;font-weight:900;font-variant-numeric:tabular-nums}
-  #fig{display:block;margin:4px auto 0;background:#26331f;border-radius:16px}
-  ol li svg{width:34px;height:34px;vertical-align:middle;margin-right:6px;background:#26331f;border-radius:8px}
+  #visual{position:relative;width:220px;height:200px;margin:4px auto 0;background:#26331f;border-radius:16px;overflow:hidden}
+  #fig,#exercise-img{position:absolute;inset:0;width:220px;height:200px}
+  #fig{display:block}
+  #exercise-img{display:none;object-fit:contain;background:#26331f;opacity:1;transition:opacity .45s ease}
+  ol li svg,ol li img{width:34px;height:34px;vertical-align:middle;margin-right:6px;background:#26331f;border-radius:8px;object-fit:contain}
   ol{list-style:none;padding-left:0}
   #next{color:var(--dim);font-size:15px;margin-top:6px}
   .bar{height:8px;background:#3a4a30;border-radius:6px;margin-top:16px;overflow:hidden}
@@ -80,7 +83,7 @@
 <section id="run">
   <div id="phase" class="stencil">WORK</div>
   <div id="ex">—</div>
-  <svg id="fig" viewBox="0 0 200 200" width="220" height="200" aria-hidden="true"></svg>
+  <div id="visual"><svg id="fig" viewBox="0 0 200 200" width="220" height="200" aria-hidden="true"></svg><img id="exercise-img" alt="" aria-hidden="true"></div>
   <div id="cue"></div>
   <div class="ring">
     <svg width="170" height="170"><circle cx="85" cy="85" r="74" stroke="#3a4a30" stroke-width="12" fill="none"/>
@@ -106,35 +109,51 @@
 
 <script src="figures.js"></script>
 <script>
-// ---- Exercise library (bodyweight, no equipment) ----
+// ---- Exercise library (aging-focused, scalable bodyweight PT) ----
 const EX = {
-  jacks:   {n:"Side-Straddle Hops", c:"Jumping jacks. Arms overhead, feet wide, stay light."},
-  pushup:  {n:"Push-Ups", c:"Straight body, chest to fist height. Knees down is fine."},
-  squat:   {n:"Squats", c:"Feet shoulder width, hips back, chest up, heels down."},
-  eight:   {n:"8-Count Body Builders", c:"Squat, kick back, push-up, feet in, stand. Count it out."},
-  flutter: {n:"Flutter Kicks", c:"On your back, hands under hips, small fast kicks, low back flat."},
-  climb:   {n:"Mountain Climbers", c:"Plank position, drive knees to chest, keep hips level."},
-  lunge:   {n:"Alternating Lunges", c:"Step forward, back knee toward the deck, push back up."},
-  plank:   {n:"Front Plank", c:"Forearms down, squeeze glutes, straight line head to heels."},
-  situp:   {n:"Sit-Ups", c:"Knees bent, arms across chest, control the way down."},
-  knees:   {n:"High Knees", c:"Run in place, knees to hip height, pump the arms."},
-  diamond: {n:"Diamond Push-Ups", c:"Hands together under chest, elbows tight. Knees down is fine."},
-  bridge:  {n:"Glute Bridges", c:"On your back, drive hips up, squeeze at the top."},
-  burpee:  {n:"Burpees", c:"Drop, chest to deck, up, jump. Steady pace wins."},
-  vup:     {n:"V-Ups", c:"Reach hands to feet, fold in half. Tuck knees to scale."},
-  bear:    {n:"Bear Crawl in Place", c:"Knees an inch off the deck, step hands and feet, back flat."},
-  hold:    {n:"Wall Sit / Squat Hold", c:"Thighs parallel, hold. Breathe."},
+  chairsquat:{n:"Chair Squat / Sit-to-Stand",c:"Feet under knees; stand through the whole foot, then sit softly."},
+  inclinepush:{n:"Incline Push-Ups",c:"Body in one line; elbows 30–45°, chest toward the support."},
+  hinge:{n:"Bodyweight Good Mornings",c:"Soft knees, hips back, long spine; squeeze glutes to stand."},
+  towelrow:{n:"Towel Isometric Rows",c:"Loop towel around feet; pull elbows toward ribs without jerking."},
+  splitsquat:{n:"Supported Split Squats",c:"Hold support if needed; drop straight down over planted feet."},
+  bridge:{n:"Glute Bridges",c:"Brace, drive hips up, squeeze glutes without arching the back."},
+  suitcase:{n:"Suitcase March",c:"Hold a safe load on one side or make a fist; stay tall, switch halfway."},
+  plank:{n:"Incline / Front Plank",c:"Brace and breathe; keep a straight line and stop before sagging."},
+  powermarch:{n:"Power March",c:"Stand tall; drive opposite arm and knee with controlled speed."},
+  fastrise:{n:"Fast Chair Rise",c:"Stand fast but smooth; lower slowly and keep knees tracking over toes."},
+  stepup:{n:"Low Step-Ups",c:"Whole foot on a low step; stand tall, then control the step down."},
+  stepjack:{n:"Step Jacks",c:"Step wide as arms rise; stay light and keep the movement low impact."},
+  lateral:{n:"Lateral Steps",c:"Stay slightly low, toes forward; step side to side without crossing."},
+  calfpower:{n:"Rapid Calf Raises",c:"Rise quickly, lower slowly; use support and keep ankles aligned."},
+  balance:{n:"Single-Leg Stand & Reach",c:"Stand near support; keep hips level and reach lightly in control."},
+  tactical:{n:"Half-Kneel Stand-Up",c:"Use a chair if needed; rise through half-kneel with control, not speed."},
+  reverselunge:{n:"Supported Reverse Lunges",c:"Step back softly; front knee tracks over toes, use support as needed."},
+  wallslide:{n:"Wall Slides",c:"Ribs down; slide arms overhead only through a painless range."},
+  calfraise:{n:"Calf Raises",c:"Rise straight up, pause, then lower slowly; hold support if needed."},
+  birddog:{n:"Bird Dogs",c:"Reach opposite arm and leg long; keep ribs and pelvis level."},
+  sideplank:{n:"Side Plank",c:"Use wall, knees, or feet; lift through the underside waist and breathe."},
+  legraise:{n:"Standing Hip Abduction",c:"Hold support; move one leg sideways without leaning or turning toes."},
+  deadbug:{n:"Dead Bug / Heel Taps",c:"Ribs down; tap one heel while keeping the low back comfortable."},
+  bearhover:{n:"Bear Hover / Incline Climber",c:"Hands supported if needed; brace, hover or alternate slow knee drives."},
 };
 const WARM = [["Arm Circles","Big circles forward, then back.","circles"],["Jog in Place","Easy pace, loosen up.","jog"],["Hip Openers","Knee up and out, alternate legs.","hipopen"]];
 const COOL = [["Hamstring Stretch","Legs straight, reach for toes, breathe.","hamstring"],["Chest & Shoulder Stretch","Hands behind back, open the chest.","chest"],["Deep Breathing","In through the nose, out slow. You earned it.","breathe"]];
 const DAYS = {
-  A: ["jacks","pushup","squat","flutter","eight","lunge","plank","climb"],
-  B: ["knees","diamond","lunge","situp","burpee","bridge","bear","hold"],
-  C: ["jacks","pushup","eight","vup","squat","climb","flutter","plank"],
+  A:["chairsquat","inclinepush","hinge","towelrow","splitsquat","bridge","suitcase","plank"],
+  B:["powermarch","fastrise","stepup","stepjack","lateral","calfpower","balance","tactical"],
+  C:["reverselunge","wallslide","calfraise","birddog","sideplank","legraise","deadbug","bearhover"],
 };
 // 10:00 total = warm 60s + 8 x 60s + cool 60s
 const LEVELS = {recruit:{t:"Recruit",w:30,r:30}, soldier:{t:"Soldier",w:40,r:20}, ranger:{t:"Ranger",w:50,r:10}};
 const WARM_S = 20, COOL_S = 20;
+// Every station, warm-up and cool-down move ships illustrated start/end frames; SVG stays as load-failure fallback.
+const IMAGE_IDS = new Set([...Object.keys(EX), ...WARM.map(w => w[2]), ...COOL.map(c => c[2])]);
+const preloaded = new Set();
+function preloadFrames(key){
+  if (!IMAGE_IDS.has(key) || preloaded.has(key)) return;
+  preloaded.add(key);
+  ["start","end"].forEach(p => { const im = new Image(); im.src = `img/${key}.${p}.webp`; });
+}
 
 // ---- State ----
 const $ = id => document.getElementById(id);
@@ -169,10 +188,16 @@ function renderHome(){
     `<button data-l="${k}" class="${store.level===k?"on":""}">${v.t}<small>${v.w}s on / ${v.r}s off</small></button>`).join("");
   $("levels").querySelectorAll("button").forEach(b => b.onclick = () => { store.level = b.dataset.l; save(); renderHome(); });
   $("plantitle").textContent = `Today's mission · Day ${dayKey()}`;
-  const thumb = k => `<svg viewBox="0 0 200 200" data-k="${k}"></svg>`;
+  const thumb = k => IMAGE_IDS.has(k)
+    ? `<img src="img/${k}.start.webp" alt="" data-k="${k}">`
+    : `<svg viewBox="0 0 200 200" data-k="${k}"></svg>`;
   $("plan").innerHTML = `<li>${thumb("circles")}Warm-up <span>· 1:00</span></li>` +
     DAYS[dayKey()].map(k => `<li>${thumb(k)}${EX[k].n} <span>· ${LEVELS[store.level].w}s</span></li>`).join("") +
     `<li>${thumb("hamstring")}Cool-down <span>· 1:00</span></li>`;
+  $("plan").querySelectorAll("img").forEach(im => im.onerror = () => {
+    const s = document.createElementNS("http://www.w3.org/2000/svg","svg");
+    s.setAttribute("viewBox","0 0 200 200"); im.replaceWith(s); PTFig.still(s, im.dataset.k, 0.5);
+  });
   $("plan").querySelectorAll("svg").forEach(s => PTFig.still(s, s.dataset.k, 0.5));
 }
 
@@ -190,16 +215,38 @@ function say(t){
 }
 
 // ---- Runner ----
-let curKey = "rest", curColor = "#d8c9a3", figOn = false;
+let curKey = "rest", curColor = "#d8c9a3", figOn = false, imageSwap = null, mediaToken = 0;
 let steps = [], idx = 0, left = 0, timer = null, paused = false, wake = null, totalS = 0, elapsed = 0;
 async function lock(){ try { wake = await navigator.wakeLock?.request("screen"); } catch(e){} }
+function useStickFigure(){
+  clearInterval(imageSwap); imageSwap = null;
+  $("exercise-img").style.display = "none"; $("fig").style.display = "block";
+}
+function useExerciseImages(key){
+  const token = ++mediaToken;
+  if (!IMAGE_IDS.has(key)) { useStickFigure(); return; }
+  const paths = [`img/${key}.start.webp`,`img/${key}.end.webp`];
+  Promise.all(paths.map(src => new Promise((resolve,reject) => { const im = new Image(); im.onload=()=>resolve(src); im.onerror=reject; im.src=src; })))
+    .then(() => {
+      if (token !== mediaToken || curKey !== key) return;
+      clearInterval(imageSwap);
+      const image = $("exercise-img"); let frame = 0;
+      image.src = paths[0]; image.style.opacity = "1"; image.style.display = "block"; $("fig").style.display = "none";
+      imageSwap = setInterval(() => {
+        image.style.opacity = "0";
+        setTimeout(() => { if (token !== mediaToken) return; frame = 1-frame; image.src = paths[frame]; image.style.opacity = "1"; }, 420);
+      }, 1200);
+    }).catch(() => { if (token === mediaToken) useStickFigure(); });
+}
 
 function show(){
   const st = steps[idx];
   $("phase").textContent = st.ph; $("ex").textContent = st.n; $("cue").textContent = st.c;
   const col = st.ph === "WORK" ? "var(--go)" : st.ph === "REST" ? "var(--rest)" : "var(--sand)";
   $("phase").style.color = col; $("arc").style.stroke = col; curKey = st.k; curColor = st.ph === "REST" ? "#e7b54a" : "#d8c9a3";
+  useExerciseImages(curKey);
   const nx = steps.slice(idx+1).find(s => s.ph !== "REST");
+  if (nx) preloadFrames(nx.k);
   $("next").textContent = nx ? "Up next: " + nx.n : "Last one. Finish strong.";
 }
 function tick(){
@@ -232,7 +279,7 @@ function finish(){
   $("donemsg").textContent = `Day ${dayKey()} complete. Streak: ${s} day${s===1?"":"s"}. Same time tomorrow.`;
   say("Outstanding. Mission complete. Same time tomorrow."); beep(1200, 0.4);
 }
-function quit(){ clearInterval(timer); wake?.release?.(); speechSynthesis?.cancel(); $("run").style.display = "none"; $("home").style.display = "block"; renderHome(); }
+function quit(){ clearInterval(timer); clearInterval(imageSwap); mediaToken++; wake?.release?.(); speechSynthesis?.cancel(); $("run").style.display = "none"; $("home").style.display = "block"; renderHome(); }
 
 $("start").onclick = start;
 $("pause").onclick = () => { paused = !paused; $("pause").textContent = paused ? "Resume" : "Pause"; if (paused) speechSynthesis?.cancel(); };
@@ -242,7 +289,13 @@ $("home2").onclick = () => { $("done").style.display = "none"; $("home").style.d
 document.addEventListener("visibilitychange", () => { if (!document.hidden && timer && !paused) lock(); });
 renderHome();
 // preview hook for screenshots only
-if (location.hash === "#preview") { $("voice").checked = false; start(); for (let i = 0; i < 5; i++) next(); left = 27; paused = true; $("sec").textContent = left; $("arc").style.strokeDashoffset = 465*(1-27/40); $("prog").style.width = "22%"; }
+if (location.hash === "#preview") {
+  $("voice").checked = false; start();
+  const target = steps.findIndex(s => IMAGE_IDS.has(s.k));
+  if (target >= 0) { idx = target; left = Math.min(27, steps[idx].s); show(); }
+  paused = true; $("sec").textContent = left;
+  $("arc").style.strokeDashoffset = 465*(1-left/steps[idx].s); $("prog").style.width = "22%";
+}
 </script>
 </body>
 </html>
