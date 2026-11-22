@@ -115,26 +115,26 @@ const EX = {
   inclinepush:{n:"Incline Push-Ups",c:"Body in one line; elbows 30–45°, chest toward the support."},
   hinge:{n:"Bodyweight Good Mornings",c:"Soft knees, hips back, long spine; squeeze glutes to stand."},
   towelrow:{n:"Towel Isometric Rows",c:"Loop towel around feet; pull elbows toward ribs without jerking."},
-  splitsquat:{n:"Supported Split Squats",c:"Hold support if needed; drop straight down over planted feet."},
+  splitsquat:{n:"Supported Split Squats",c:"Hold support if needed; drop straight down over planted feet.",side:1},
   bridge:{n:"Glute Bridges",c:"Brace, drive hips up, squeeze glutes without arching the back."},
-  suitcase:{n:"Suitcase March",c:"Hold a safe load on one side or make a fist; stay tall, switch halfway."},
+  suitcase:{n:"Suitcase March",c:"Hold a safe load in one hand or make a fist; stay tall and march.",side:1},
   plank:{n:"Incline / Front Plank",c:"Brace and breathe; keep a straight line and stop before sagging."},
-  powermarch:{n:"Power March",c:"Stand tall; drive opposite arm and knee with controlled speed."},
+  powermarch:{n:"Power March",c:"Stand tall; drive opposite arm and knee, alternating legs with controlled speed."},
   fastrise:{n:"Fast Chair Rise",c:"Stand fast but smooth; lower slowly and keep knees tracking over toes."},
-  stepup:{n:"Low Step-Ups",c:"Whole foot on a low step; stand tall, then control the step down."},
+  stepup:{n:"Low Step-Ups",c:"Whole foot on a low step; stand tall, then control the step down.",side:1},
   stepjack:{n:"Step Jacks",c:"Step wide as arms rise; stay light and keep the movement low impact."},
   lateral:{n:"Lateral Steps",c:"Stay slightly low, toes forward; step side to side without crossing."},
   calfpower:{n:"Rapid Calf Raises",c:"Rise quickly, lower slowly; use support and keep ankles aligned."},
-  balance:{n:"Single-Leg Stand & Reach",c:"Stand near support; keep hips level and reach lightly in control."},
-  tactical:{n:"Half-Kneel Stand-Up",c:"Use a chair if needed; rise through half-kneel with control, not speed."},
-  reverselunge:{n:"Supported Reverse Lunges",c:"Step back softly; front knee tracks over toes, use support as needed."},
+  balance:{n:"Single-Leg Stand & Reach",c:"Stand near support; keep hips level and reach lightly in control.",side:1},
+  tactical:{n:"Half-Kneel Stand-Up",c:"Use a chair if needed; rise through half-kneel with control, not speed.",side:1},
+  reverselunge:{n:"Supported Reverse Lunges",c:"Step back softly; front knee tracks over toes, use support as needed.",side:1},
   wallslide:{n:"Wall Slides",c:"Ribs down; slide arms overhead only through a painless range."},
   calfraise:{n:"Calf Raises",c:"Rise straight up, pause, then lower slowly; hold support if needed."},
-  birddog:{n:"Bird Dogs",c:"Reach opposite arm and leg long; keep ribs and pelvis level."},
-  sideplank:{n:"Side Plank",c:"Use wall, knees, or feet; lift through the underside waist and breathe."},
-  legraise:{n:"Standing Hip Abduction",c:"Hold support; move one leg sideways without leaning or turning toes."},
-  deadbug:{n:"Dead Bug / Heel Taps",c:"Ribs down; tap one heel while keeping the low back comfortable."},
-  bearhover:{n:"Bear Hover / Incline Climber",c:"Hands supported if needed; brace, hover or alternate slow knee drives."},
+  birddog:{n:"Bird Dogs",c:"Reach opposite arm and leg long; keep ribs and pelvis level. Alternate sides each rep."},
+  sideplank:{n:"Side Plank",c:"Use wall, knees, or feet; lift through the underside waist and breathe.",side:1},
+  legraise:{n:"Standing Hip Abduction",c:"Hold support; move one leg sideways without leaning or turning toes.",side:1},
+  deadbug:{n:"Dead Bug / Heel Taps",c:"Ribs down; tap one heel, then the other, keeping the low back comfortable."},
+  bearhover:{n:"Bear Hover / Incline Climber",c:"Hands supported if needed; brace, hover or alternate slow knee drives left and right."},
 };
 const WARM = [["Arm Circles","Big circles forward, then back.","circles"],["Jog in Place","Easy pace, loosen up.","jog"],["Hip Openers","Knee up and out, alternate legs.","hipopen"]];
 const COOL = [["Hamstring Stretch","Legs straight, reach for toes, breathe.","hamstring"],["Chest & Shoulder Stretch","Hands behind back, open the chest.","chest"],["Deep Breathing","In through the nose, out slow. You earned it.","breathe"]];
@@ -173,7 +173,7 @@ function buildSteps(){
   const L = LEVELS[store.level], steps = [];
   WARM.forEach(([n,c,k]) => steps.push({ph:"WARM-UP", n, c, k, s:WARM_S}));
   DAYS[dayKey()].forEach((k,i) => {
-    steps.push({ph:"WORK", n:EX[k].n, c:EX[k].c, k, s:L.w});
+    steps.push({ph:"WORK", n:EX[k].n, c:EX[k].c, k, s:L.w, side:!!EX[k].side});
     steps.push({ph:"REST", n:"Recover", k:"rest", c:"Shake it out. Next: " + (DAYS[dayKey()][i+1] ? EX[DAYS[dayKey()][i+1]].n : "cool-down"), s:L.r});
   });
   COOL.forEach(([n,c,k]) => steps.push({ph:"COOL-DOWN", n, c, k, s:COOL_S}));
@@ -241,7 +241,9 @@ function useExerciseImages(key){
 
 function show(){
   const st = steps[idx];
-  $("phase").textContent = st.ph; $("ex").textContent = st.n; $("cue").textContent = st.c;
+  $("phase").textContent = st.side ? "WORK · RIGHT SIDE" : st.ph; $("ex").textContent = st.n;
+  $("cue").textContent = st.side ? "Right side first — switch at the halfway beep. " + st.c : st.c;
+  $("exercise-img").style.transform = "";
   const col = st.ph === "WORK" ? "var(--go)" : st.ph === "REST" ? "var(--rest)" : "var(--sand)";
   $("phase").style.color = col; $("arc").style.stroke = col; curKey = st.k; curColor = st.ph === "REST" ? "#e7b54a" : "#d8c9a3";
   useExerciseImages(curKey);
@@ -255,15 +257,24 @@ function tick(){
   $("arc").style.strokeDashoffset = 465 * (1 - left / steps[idx].s);
   $("prog").style.width = (100 * elapsed / totalS) + "%";
   if (left <= 3 && left > 0) beep(660, 0.08);
+  const st = steps[idx];
+  if (st.side && left === Math.floor(st.s/2) && left > 0) switchSides(st);
   if (left === 0) { next(); return; }
   left--; elapsed++;
+}
+function switchSides(st){
+  $("phase").textContent = "WORK · LEFT SIDE";
+  $("cue").textContent = "Switch sides — left side now. " + st.c;
+  $("exercise-img").style.transform = "scaleX(-1)";
+  beep(1000, 0.12); setTimeout(() => beep(1000, 0.12), 180);
+  say("Switch sides. Left side.");
 }
 function next(){
   idx++;
   if (idx >= steps.length) return finish();
   left = steps[idx].s; show(); beep(steps[idx].ph === "WORK" ? 1000 : 520, 0.25);
   const st = steps[idx];
-  say(st.ph === "WORK" ? st.n + ". Begin!" : st.ph === "REST" ? "Recover." : st.n);
+  say(st.ph === "WORK" ? st.n + (st.side ? ". Right side first. Begin!" : ". Begin!") : st.ph === "REST" ? "Recover." : st.n);
 }
 function start(){
   steps = buildSteps(); idx = 0; left = steps[0].s; elapsed = 0; totalS = steps.reduce((a,s) => a + s.s, 0); paused = false;
